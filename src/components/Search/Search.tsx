@@ -1,7 +1,7 @@
 "use client";
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface Result {
   poster: string;
@@ -10,6 +10,7 @@ interface Result {
 }
 
 const Search = () => {
+  const controllerRef = useRef<AbortController>();
   const [query, setQuery] = useState<string>();
   const [results, setResults] = useState<Array<{ item: Result }> | undefined>();
 
@@ -21,16 +22,27 @@ const Search = () => {
     setQuery(target.value);
     setResults(undefined);
 
-    const response = await fetch('/api/search', {
-      method: 'POST',
-      body: JSON.stringify({
-        query: target.value
-      })
-    })
+    if ( controllerRef.current ) {
+      console.log('asdf')
+      controllerRef.current.abort();
+    }
 
-    const data = await response.json();
-    
-    setResults(data.results);
+    controllerRef.current = new AbortController();
+    const signal = controllerRef.current.signal;
+
+    try {
+      const response = await fetch('/api/search', {
+        method: 'POST',
+        body: JSON.stringify({
+          query: target.value
+        }),
+        signal
+      })
+
+      const data = await response.json();
+
+      setResults(data.results);
+    } catch(e) {}
   }
 
   return (
@@ -48,7 +60,14 @@ const Search = () => {
           { results.map(({ item }) => {
             return (
               <li key={item.title}>
-                <Image className="block rounded shadow mb-2" width="640" height="960" src={item.poster} alt="Poster" />
+                <Image
+                  className="block rounded shadow mb-2"
+                  width="640"
+                  height="960"
+                  src={item.poster}
+                  alt="Poster"
+                  sizes="50vw"
+                />
                 <span className="block font-semibold">{ item.title }</span>
                 <span className="block text-sm">{ item.year }</span>
               </li>
