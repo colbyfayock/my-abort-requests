@@ -4,8 +4,6 @@ Demo for tutorial [Cancel Fetch Requests with AbortController in React](https://
 
 📺 YouTube: https://www.youtube.com/watch?v=VdAlFWBUGV4
 
-🚀 Demo: https://my-abort-requests.vercel.app/
-
 ## More tutorials and walkthroughs
 
 🐦 [Follow me on Twitter](https://twitter.com/colbyfayock)
